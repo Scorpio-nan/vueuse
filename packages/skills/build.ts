@@ -21,6 +21,7 @@ const SKILL_COPY_DIR = r('../../skills/vueuse-functions')
 const SKILL_REFERENCE_DIR = './references'
 const SKILLS_TEMPLATE_PATH = r('./templates/vueuse-functions-skills.md')
 const VUEUSE_ROOT = r('../..')
+const PACKAGE_JSON_PATH = r('./package.json')
 
 const EXPLICIT_ONLY_FUNCTIONS = new Set([
   'get',
@@ -29,6 +30,8 @@ const EXPLICIT_ONLY_FUNCTIONS = new Set([
 ])
 
 ;(async () => {
+  syncPackageVersion()
+
   const categories = await prepareFunctionReferences(SKILL_DIR)
   const functionsTable = prepareFunctionsTable(categories)
 
@@ -49,6 +52,13 @@ const EXPLICIT_ONLY_FUNCTIONS = new Set([
 })()
 
 // Utils
+
+function syncPackageVersion() {
+  const { version } = JSON.parse(readFileSync(r('../../package.json'), 'utf-8'))
+  const packageJSON = JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf-8'))
+  packageJSON.version = version
+  writeFileSync(PACKAGE_JSON_PATH, `${JSON.stringify(packageJSON, null, 2)}\n`)
+}
 
 async function prepareFunctionReferences(outDir: string, referenceDir = SKILL_REFERENCE_DIR): Promise<Record<string, FunctionReference[]>> {
   // Regenerate from scratch so references of removed functions don't linger
